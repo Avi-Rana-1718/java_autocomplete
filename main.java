@@ -386,7 +386,13 @@ class AutoComplete {
     }
 
     void discover() {
-            Node currNode = map.get("programming");
+            Node currNode = map.getOrDefault("programming", null);
+
+            if(currNode==null) {
+                System.out.println("No search results");
+                return;
+            }
+
             List<String> list = new ArrayList<>();
             helper(currNode, list, new StringBuilder());
             System.out.println(list.toString());
