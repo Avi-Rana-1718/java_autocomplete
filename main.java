@@ -12,11 +12,11 @@ class Main {
 
 class Node {
     public String term;
-    public ArrayList<Node> children;
+    public Map<String, Node> children;
     
     Node(String term) {
-        this.term = term;
-        children = new ArrayList<>();
+        this.term = term.toLowerCase();
+        children = new HashMap<>();
     }
 }
 
@@ -32,6 +32,8 @@ class AutoComplete {
         Node currNode = null;
         
         for(int i=0;i<words.length;i++) {
+            words[i]=words[i].toLowerCase();
+
             if(i==0 && map.containsKey(words[i])) {
                 currNode=map.get(words[i]);
                 continue;
@@ -41,40 +43,33 @@ class AutoComplete {
                 continue;
             }
             
-            boolean wordFound = false;
-            for(Node node : currNode.children) {
-                if(node.term.equals(words[i])) {
-                    wordFound=true;
-                    currNode=node;
-                    break;
-                }
-            }
-            
-            if(wordFound==false) {
+            if(currNode.children.containsKey(words[i])) {
+                currNode=currNode.children.get(words[i]);
+            } else {
                 Node nNode = new Node(words[i]);
-                currNode.children.add(nNode);
+                currNode.children.put(words[i], nNode);
                 currNode=nNode;
             }
         }
     }
 
     void discover() {
-            Node currNode = map.get("I");
+            Node currNode = map.get("i");
             List<String> list = new ArrayList<>();
             helper(currNode, list, new StringBuilder());
             System.out.println(list.toString());
     }
     
     void helper(Node node, List<String> list, StringBuilder str) {
-        str.append(node.term + " ");
-                
         if(node.children.size()==0) {
-           // System.out.println(str.toString());
+            str.append(node.term);
             list.add(str.toString());
             return;
         }
         
-        for(Node currNode : node.children) {
+        str.append(node.term + " ");
+        
+        for(Node currNode : node.children.values()) {
             helper(currNode, list, new StringBuilder(str));
         }
     }
