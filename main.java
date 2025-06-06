@@ -334,7 +334,7 @@ class Main {
         autoComplete.insert("i love lowercase");
         autoComplete.insert("I Love Mixed Case");
         
-        autoComplete.discover();
+        autoComplete.discover("i love");
     }
 }
 
@@ -385,30 +385,52 @@ class AutoComplete {
         //System.out.println("Inserted successfully " + size);
     }
 
-    void discover() {
-            Node currNode = map.getOrDefault("programming", null);
+    void discover(String sentence) {
+            sentence=sentence.toLowerCase();
+            String[] words = sentence.split(" ");
+            Node currNode=null;
+            StringBuilder prefix = new StringBuilder();
+            String prev = "";
+            //String term = sentence;
+
+            // lookup for sentence
+            if(map.containsKey(words[0])) {
+                currNode=map.get(words[0]);
+                prev=words[0] + " ";
+                for(int i=1;i<words.length;i++) {
+                    if(currNode.children.containsKey(words[i])) {
+                        currNode=currNode.children.get(words[i]);
+                        prefix.append(prev);
+                        prev=words[i] + " ";
+                    } else {
+                        break;
+                    }
+                }
+            }
 
             if(currNode==null) {
                 System.out.println("No search results");
                 return;
             }
 
+           // System.out.println(prefix.toString());
+
             List<String> list = new ArrayList<>();
-            helper(currNode, list, new StringBuilder());
+            helper(currNode, list, new StringBuilder(), prefix.toString());
             System.out.println(list.toString());
     }
     
-    void helper(Node node, List<String> list, StringBuilder str) {
+    void helper(Node node, List<String> list, StringBuilder str, String prefix) {
         if(node.children.size()==0) {
             str.append(node.term);
-            list.add(str.toString());
+            list.add(prefix + str.toString());
             return;
         }
         
         str.append(node.term + " ");
         
         for(Node currNode : node.children.values()) {
-            helper(currNode, list, new StringBuilder(str));
+            helper(currNode, list, new StringBuilder(str), prefix);
         }
     }
 }
